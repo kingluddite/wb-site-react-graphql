@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 
 // custom components
+import PleaseSignIn from '../components/PleaseSignIn';
 import CreateItem from '../components/CreateItem';
 
 class Sell extends Component {
   render() {
     return (
       <div>
-        <CreateItem />
+        <PleaseSignIn>
+          <CreateItem />
+        </PleaseSignIn>
       </div>
     );
   }
