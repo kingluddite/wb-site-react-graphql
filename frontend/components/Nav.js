@@ -4,10 +4,20 @@ import Link from 'next/link';
 // styles
 import NavStyles from './styles/NavStyles';
 
+// custom components
+import User from './User';
+
 class Nav extends Component {
   render() {
     return (
       <NavStyles>
+        <User>
+          {({ data: { currentUser } }) => {
+            console.log(currentUser);
+            if (currentUser) return <p>{currentUser.name}</p>;
+            return null;
+          }}
+        </User>
         <Link href="/items">
           <a>Shop</a>
         </Link>
