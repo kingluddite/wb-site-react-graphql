@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-
 // GraphQL
 import { Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
@@ -7,81 +6,77 @@ import gql from 'graphql-tag';
 // GraphQL queries
 import { CURRENT_USER_QUERY } from './User';
 
-// custom styles
+// styles
 import Form from './styles/Form';
 
 // custom components
 import Error from './ErrorMessage';
 
-// GraphQL mutations
-const SIGNUP_MUTATION = gql`
-  mutation SIGNUP_MUTATION($email: String!, $name: String!, $password: String!) {
-    signup(email: $email, name: $name, password: $password) {
+const SIGNIN_USER_MUTATION = gql`
+  mutation SIGNIN_USER_MUTATION($email: String!, $password: String!) {
+    signin(email: $email, password: $password) {
       id
-      email
       name
+      email
     }
   }
 `;
 
 const initialState = {
-  name: '',
-  password: '',
   email: '',
+  password: '',
 };
 
-class Signup extends Component {
+class Signin extends Component {
   state = {
     ...initialState,
   };
 
-  clearState = () => {
+  clearForm = () => {
     this.setState({
       ...initialState,
     });
   };
 
-  saveToState = e => {
-    this.setState({ [e.target.name]: e.target.value });
+  saveToState = event => {
+    this.setState({ [event.target.name]: event.target.value });
   };
 
-  handleSubmit = async (event, signup) => {
+  handleSubmit = async (event, signin) => {
     event.preventDefault();
-    const res = await signup();
-    this.clearState();
+    const res = await signin();
+    this.clearForm();
   };
 
   render() {
-    const { email, name, password } = this.state;
+    const { email, password } = this.state;
+
     return (
       <Mutation
-        mutation={SIGNUP_MUTATION}
-        variables={{ email, name, password }}
+        mutation={SIGNIN_USER_MUTATION}
+        variables={{ email, password }}
         refetchQueries={[
           {
             query: CURRENT_USER_QUERY,
           },
         ]}
       >
-        {(signup, { data, error, loading }) => {
+        {(signin, { data, loading, error }) => {
           if (loading) return <div>Loading...</div>;
-          console.log(data);
+          // if (error) return <div>Error {error.message}</div>;
+          // console.log(data);
 
           return (
-            <Form method="post" onSubmit={event => this.handleSubmit(event, signup)}>
+            <Form method="post" onSubmit={event => this.handleSubmit(event, signin)}>
               <fieldset disabled={loading} aria-busy={loading}>
-                <h2>Sign Up for An Account</h2>
+                <h2>Sign In</h2>
                 <Error error={error} />
                 <label htmlFor="email">
-                  Email
+                  email
                   <input type="email" name="email" placeholder="email" value={email} onChange={this.saveToState} />
                 </label>
-                <label htmlFor="name">
-                  Name
-                  <input type="text" name="name" placeholder="name" value={name} onChange={this.saveToState} />
-                </label>
                 <label htmlFor="password">
-                  Password
+                  password
                   <input
                     type="password"
                     name="password"
@@ -90,8 +85,7 @@ class Signup extends Component {
                     onChange={this.saveToState}
                   />
                 </label>
-
-                <button type="submit">Sign Up!</button>
+                <button type="submit">Sign In</button>
               </fieldset>
             </Form>
           );
@@ -101,4 +95,4 @@ class Signup extends Component {
   }
 }
 
-export default Signup;
+export default Signin;
