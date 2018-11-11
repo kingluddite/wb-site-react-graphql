@@ -81,12 +81,14 @@ const Mutations = {
     // 3. Generate the JWT token
     const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET);
     // 4. Set the cookie with the token
-    ctx.response.cookie('token', token, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year cookie
-    });
+    setCookieWithToken(ctx, token);
     // 5. Return the user
     return user;
+  },
+
+  signout(parent, args, ctx, info) {
+    ctx.response.clearCookie('token');
+    return { message: 'Live long and prosper' };
   },
 };
 

@@ -6,6 +6,7 @@ import NavStyles from './styles/NavStyles';
 
 // custom components
 import User from './User';
+import Signout from './Signout';
 
 class Nav extends Component {
   render() {
@@ -30,6 +31,7 @@ class Nav extends Component {
                 <Link href="/me">
                   <a>Account</a>
                 </Link>
+                <Signout />
               </>
             )}
             {!currentUser && (
