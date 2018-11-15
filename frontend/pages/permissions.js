@@ -2,18 +2,18 @@ import React, { Component } from 'react';
 
 // custom components
 import PleaseSignIn from '../components/PleaseSignIn';
-import CreateItem from '../components/CreateItem';
+import Permissions from '../components/Permissions';
 
-class Sell extends Component {
+class PermissionsPage extends Component {
   render() {
     return (
       <div>
         <PleaseSignIn>
-          <CreateItem />
+          <Permissions />
         </PleaseSignIn>
       </div>
     );
   }
 }
 
-export default Sell;
+export default PermissionsPage;

@@ -8,7 +8,7 @@
     "test": "jest",
     "playground": "graphql playground --dotenv .env",
     "deploy": "prisma deploy --env-file .env",
-    "dev": "npm-run-all --parallel debug playground"
+    "dev": "npm-run-all --parallel debug"
   },
   "dependencies": {
     "bcryptjs": "2.4.3",
