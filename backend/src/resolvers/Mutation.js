@@ -6,6 +6,7 @@ const util = require('util');
 // custom imports
 const { transport } = require('../mail');
 const { makeANiceEmail } = require('../email-templates/black-friday');
+const { hasPermission } = require('../utils');
 
 const setCookieWithToken = (ctx, token) => {
   ctx.response.cookie('token', token, {
@@ -54,6 +55,25 @@ const Mutations = {
       },
       info
     );
+  },
+
+  async deleteItem(parent, args, ctx, info) {
+    // throw new Error('You do not have permissions to delete this item');
+    const where = { id: args.id };
+    // 1. find the item
+    const item = await ctx.db.query.item({ where }, `{ id title user { id }}`);
+    // 2. Check if they own that item, or have permissions
+    const ownsItem = item.user.id === ctx.request.userId;
+    const hasPermissions = ctx.request.user.permissions.some(permission =>
+      ['ADMIN', 'ITEMDELETE'].includes(permission)
+    );
+
+    if (!ownsItem && !hasPermissions) {
+      throw new Error("You don't have permission to do that");
+    }
+
+    // 3. Delete it!
+    return ctx.db.mutation.deleteItem({ where }, info);
   },
 
   async signup(parent, args, ctx, info) {
@@ -164,6 +184,78 @@ const Mutations = {
     setCookieWithToken(ctx, token);
     // 8. Return the new user
     return updatedUser;
+  },
+  async updatePermissions(parent, args, ctx, info) {
+    // 1. Check if they are logged in
+    if (!ctx.request.userId) {
+      throw new Error('You must be logged in');
+    }
+    // 2. Query the current user
+    const currentUser = await ctx.db.query.user(
+      {
+        where: {
+          id: ctx.request.userId,
+        },
+      },
+      info
+    );
+    // 3. Check if they have permissions to do this
+    hasPermission(currentUser, ['ADMIN', 'PERMISSIONUPDATE']);
+    // 4. Update the permissions
+    return ctx.db.mutation.updateUser(
+      {
+        data: {
+          permissions: {
+            set: args.permissions,
+          },
+        },
+        where: {
+          id: args.userId,
+        },
+      },
+      info
+    );
+  },
+  async addToCart(parent, args, ctx, info) {
+    // 1. Make suer they are signed in
+    const userId = ctx.request.userId;
+    // same line above could be destructured like:
+    // const { userId } = ctx.request;
+    if (!userId) {
+      throw new Error('You must be signed in');
+    }
+    // 2. Query the users current cart
+    const [existingCartItem] = await ctx.db.query.cartItems({
+      where: {
+        user: { id: userId }, // ID of user we are passing
+        item: { id: args.id }, // ID of item we will be passing
+      },
+    });
+    // 3. Check if that item is already in their cart and increment by 1 if it is
+    if (existingCartItem) {
+      console.log('This item is already in your cart');
+      return ctx.db.mutation.updateCartItem(
+        {
+          where: { id: existingCartItem.id },
+          data: { quantity: existingCartItem.quantity + 1 },
+        },
+        info
+      );
+    }
+    // 4. If its not, create a fresh CartItem for that user!
+    return ctx.db.mutation.createCartItem(
+      {
+        data: {
+          user: {
+            connect: { id: userId },
+          },
+          item: {
+            connect: { id: args.id },
+          },
+        },
+      },
+      info
+    );
   },
 };
 

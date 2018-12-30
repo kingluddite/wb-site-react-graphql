@@ -1,6 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import Link from 'next/link';
 
+// GraphQL
+import { Mutation } from 'react-apollo';
+// local GraphQL
+import { TOGGLE_CART_MUTATION } from './Cart';
+
 // styles
 import NavStyles from './styles/NavStyles';
 
@@ -32,6 +37,13 @@ class Nav extends Component {
                   <a>Account</a>
                 </Link>
                 <Signout />
+                <Mutation mutation={TOGGLE_CART_MUTATION}>
+                  {toggleCart => (
+                    <button type="button" onClick={toggleCart}>
+                      Cart
+                    </button>
+                  )}
+                </Mutation>
               </>
             )}
             {!currentUser && (
