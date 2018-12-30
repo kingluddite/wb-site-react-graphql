@@ -35,7 +35,7 @@ const Mutations = {
       },
       info
     );
-    console.log(item);
+    // console.log(item);
 
     return item;
   },
@@ -139,7 +139,7 @@ const Mutations = {
       where: { email: args.email },
       data: { resetToken, resetTokenExpiry },
     });
-    console.log(res);
+    // console.log(res);
     // 3. Email them that reset token
     const mailRes = await transport.sendMail({
       from: 'howley.phil@gmail.com',
