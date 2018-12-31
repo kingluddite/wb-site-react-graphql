@@ -1,6 +1,7 @@
 import React from 'react';
 import { Query, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
+import { adopt } from 'react-adopt';
 
 // custom styles
 import CartStyles from './styles/CartStyles';
@@ -29,48 +30,50 @@ const TOGGLE_CART_MUTATION = gql`
   }
 `;
 
-const Cart = () => (
-  <User>
-    {({ data: { currentUser } }) => {
-      if (!currentUser) return null;
-      console.log(currentUser);
-      return (
-        <Mutation mutation={TOGGLE_CART_MUTATION}>
-          {toggleCart => (
-            <Query query={LOCAL_STATE_QUERY}>
-              {({ data }) => (
-                <CartStyles open={data.cartOpen}>
-                  <header>
-                    <Supreme>
-                      {currentUser.name}
-                      's Cart
-                    </Supreme>
-                    <p>
-                      You have {currentUser.cart.length} Item
-                      {currentUser.cart.length === 1 ? '' : 's'}
-                    </p>
-                    <ul>
-                      {currentUser.cart.map(cartItem => (
-                        <CartItem key={cartItem.id} cartItem={cartItem} />
-                      ))}
-                    </ul>
-                    <CloseButton onClick={toggleCart} title="close">
-                      &times;
-                    </CloseButton>
-                  </header>
+/* eslint-disable */
+const Composed = adopt({
+  user: ({ render }) => <User>{render}</User>,
+  toggleCart: ({ render }) => (
+    <Mutation mutation={TOGGLE_CART_MUTATION}>{render}</Mutation>
+  ),
+  localState: ({ render }) => <Query query={LOCAL_STATE_QUERY}>{render}</Query>,
+});
+/* eslint-enable */
 
-                  <footer>
-                    <p>{formatMoney(calcTotalPrice(currentUser.cart))}</p>
-                    <SickButton>Checkout</SickButton>
-                  </footer>
-                </CartStyles>
-              )}
-            </Query>
-          )}
-        </Mutation>
+const Cart = () => (
+  <Composed>
+    {({ user, toggleCart, localState }) => {
+      const { currentUser } = user.data;
+      if (!currentUser) return null;
+      return (
+        <CartStyles open={localState.data.cartOpen}>
+          <header>
+            <Supreme>
+              {currentUser.name}
+              's Cart
+            </Supreme>
+            <p>
+              You have {currentUser.cart.length} Item
+              {currentUser.cart.length === 1 ? '' : 's'}
+            </p>
+            <ul>
+              {currentUser.cart.map(cartItem => (
+                <CartItem key={cartItem.id} cartItem={cartItem} />
+              ))}
+            </ul>
+            <CloseButton onClick={toggleCart} title="close">
+              &times;
+            </CloseButton>
+          </header>
+
+          <footer>
+            <p>{formatMoney(calcTotalPrice(currentUser.cart))}</p>
+            <SickButton>Checkout</SickButton>
+          </footer>
+        </CartStyles>
       );
     }}
-  </User>
+  </Composed>
 );
 
 export default Cart;

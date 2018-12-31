@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/pip-5a52b7/sickophant/dev
-# timestamp: Sat Dec 29 2018 21:18:30 GMT-0800 (Pacific Standard Time)
+# timestamp: Sun Dec 30 2018 18:55:57 GMT-0800 (Pacific Standard Time)
 
 type AggregateCartItem {
   count: Int!
@@ -21,7 +21,7 @@ type BatchPayload {
 type CartItem implements Node {
   id: ID!
   quantity: Int!
-  item: Item!
+  item: Item
   user: User!
 }
 
@@ -37,7 +37,7 @@ type CartItemConnection {
 
 input CartItemCreateInput {
   quantity: Int
-  item: ItemCreateOneInput!
+  item: ItemCreateOneInput
   user: UserCreateOneWithoutCartInput!
 }
 
@@ -48,7 +48,7 @@ input CartItemCreateManyWithoutUserInput {
 
 input CartItemCreateWithoutUserInput {
   quantity: Int
-  item: ItemCreateOneInput!
+  item: ItemCreateOneInput
 }
 
 """An edge in a connection."""
@@ -190,7 +190,7 @@ input CartItemSubscriptionWhereInput {
 
 input CartItemUpdateInput {
   quantity: Int
-  item: ItemUpdateOneRequiredInput
+  item: ItemUpdateOneInput
   user: UserUpdateOneRequiredWithoutCartInput
 }
 
@@ -220,7 +220,7 @@ input CartItemUpdateManyWithWhereNestedInput {
 
 input CartItemUpdateWithoutUserDataInput {
   quantity: Int
-  item: ItemUpdateOneRequiredInput
+  item: ItemUpdateOneInput
 }
 
 input CartItemUpdateWithWhereUniqueWithoutUserInput {
@@ -234,80 +234,6 @@ input CartItemUpsertWithWhereUniqueWithoutUserInput {
   create: CartItemCreateWithoutUserInput!
 }
 
-input CartItemWhereInput {
-  """Logical AND on all given filters."""
-  AND: [CartItemWhereInput!]
-
-  """Logical OR on all given filters."""
-  OR: [CartItemWhereInput!]
-
-  """Logical NOT on all given filters combined by AND."""
-  NOT: [CartItemWhereInput!]
-  id: ID
-
-  """All values that are not equal to given value."""
-  id_not: ID
-
-  """All values that are contained in given list."""
-  id_in: [ID!]
-
-  """All values that are not contained in given list."""
-  id_not_in: [ID!]
-
-  """All values less than the given value."""
-  id_lt: ID
-
-  """All values less than or equal the given value."""
-  id_lte: ID
-
-  """All values greater than the given value."""
-  id_gt: ID
-
-  """All values greater than or equal the given value."""
-  id_gte: ID
-
-  """All values containing the given string."""
-  id_contains: ID
-
-  """All values not containing the given string."""
-  id_not_contains: ID
-
-  """All values starting with the given string."""
-  id_starts_with: ID
-
-  """All values not starting with the given string."""
-  id_not_starts_with: ID
-
-  """All values ending with the given string."""
-  id_ends_with: ID
-
-  """All values not ending with the given string."""
-  id_not_ends_with: ID
-  quantity: Int
-
-  """All values that are not equal to given value."""
-  quantity_not: Int
-
-  """All values that are contained in given list."""
-  quantity_in: [Int!]
-
-  """All values that are not contained in given list."""
-  quantity_not_in: [Int!]
-
-  """All values less than the given value."""
-  quantity_lt: Int
-
-  """All values less than or equal the given value."""
-  quantity_lte: Int
-
-  """All values greater than the given value."""
-  quantity_gt: Int
-
-  """All values greater than or equal the given value."""
-  quantity_gte: Int
-  item: ItemWhereInput
-  user: UserWhereInput
-}
 input CartItemWhereInput {
   """Logical AND on all given filters."""
   AND: [CartItemWhereInput!]
@@ -523,9 +449,11 @@ input ItemUpdateManyMutationInput {
   price: Int
 }
 
-input ItemUpdateOneRequiredInput {
+input ItemUpdateOneInput {
   create: ItemCreateInput
   connect: ItemWhereUniqueInput
+  disconnect: Boolean
+  delete: Boolean
   update: ItemUpdateDataInput
   upsert: ItemUpsertNestedInput
 }

@@ -12,6 +12,7 @@ import NavStyles from './styles/NavStyles';
 // custom components
 import User from './User';
 import Signout from './Signout';
+import CartCount from './CartCount';
 
 class Nav extends Component {
   render() {
@@ -40,7 +41,8 @@ class Nav extends Component {
                 <Mutation mutation={TOGGLE_CART_MUTATION}>
                   {toggleCart => (
                     <button type="button" onClick={toggleCart}>
-                      Cart
+                      My Cart
+                      <CartCount count={currentUser.cart.reduce((tally, cartItem) => tally + cartItem.quantity, 0)} />
                     </button>
                   )}
                 </Mutation>
