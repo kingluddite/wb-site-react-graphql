@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const util = require('util');
-
+// delete this comment
 // custom imports
 const { transport } = require('../mail');
 const { makeANiceEmail } = require('../email-templates/black-friday');
