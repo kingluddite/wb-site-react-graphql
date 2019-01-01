@@ -39,7 +39,7 @@ class CreateItem extends Component {
     description: '',
     image: '',
     largeImage: '',
-    price: 0,
+    price: '',
   };
 
   handleChange = event => {
