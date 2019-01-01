@@ -72,7 +72,7 @@ class Signin extends Component {
                 <h2>Sign In</h2>
                 <Error error={error} />
                 <label htmlFor="email">
-                  email
+                  Email
                   <input type="email" name="email" placeholder="email" value={email} onChange={this.saveToState} />
                 </label>
                 <label htmlFor="password">

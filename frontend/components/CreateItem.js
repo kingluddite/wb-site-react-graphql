@@ -35,11 +35,11 @@ class CreateItem extends Component {
   // };
 
   state = {
-    title: 'Test Title',
-    description: 'Test Description',
-    image: 'test-image.jpg',
-    largeImage: 'test-large-image.jpg',
-    price: 1000,
+    title: '',
+    description: '',
+    image: '',
+    largeImage: '',
+    price: 0,
   };
 
   handleChange = event => {
