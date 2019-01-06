@@ -12,6 +12,7 @@ import SickButton from './styles/SickButton';
 // custom components
 import User from './User';
 import CartItem from './CartItem';
+import TakeMyMoney from './TakeMyMoney';
 
 // lib
 import calcTotalPrice from '../lib/calcTotalPrice';
@@ -68,7 +69,11 @@ const Cart = () => (
 
           <footer>
             <p>{formatMoney(calcTotalPrice(currentUser.cart))}</p>
-            <SickButton>Checkout</SickButton>
+            {currentUser.cart.length && (
+              <TakeMyMoney>
+                <SickButton>Checkout</SickButton>
+              </TakeMyMoney>
+            )}
           </footer>
         </CartStyles>
       );

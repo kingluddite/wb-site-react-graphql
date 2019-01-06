@@ -6,6 +6,7 @@ const util = require('util');
 const { transport } = require('../mail');
 const { makeANiceEmail } = require('../email-templates/black-friday');
 const { hasPermission } = require('../utils');
+const stripe = require('../stripe');
 
 const setCookieWithToken = (ctx, token) => {
   ctx.response.cookie('token', token, {
@@ -101,22 +102,23 @@ const Mutations = {
   },
 
   async signin(parent, { email, password }, ctx, info) {
+    console.log('server');
     // 1. Check if there is an email with that user
-    const user = await ctx.db.query.user({ where: { email } });
-    if (!user) {
-      throw new Error(`No such user found for email ${email}`);
-    }
+    // const user = await ctx.db.query.user({ where: { email } });
+    // if (!user) {
+    //   throw new Error(`No such user found for email ${email}`);
+    // }
     // 2. Check if their password is correct
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) {
-      throw new Error('Invalid Password!');
-    }
+    // const valid = await bcrypt.compare(password, user.password);
+    // if (!valid) {
+    //   throw new Error('Invalid Password!');
+    // }
     // 3. Generate the JWT token
-    const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET);
+    // const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET);
     // 4. Set the cookie with the token
-    setCookieWithToken(ctx, token);
+    // setCookieWithToken(ctx, token);
     // 5. Return the user
-    return user;
+    // return user;
   },
 
   signout(parent, args, ctx, info) {
@@ -215,11 +217,11 @@ const Mutations = {
       info
     );
   },
+
   async addToCart(parent, args, ctx, info) {
     // 1. Make suer they are signed in
-    const userId = ctx.request.userId;
+    const { userId } = ctx.request;
     // same line above could be destructured like:
-    // const { userId } = ctx.request;
     if (!userId) {
       throw new Error('You must be signed in');
     }
@@ -280,6 +282,70 @@ const Mutations = {
       },
       info
     );
+  },
+
+  async createOrder(parent, args, ctx, info) {
+    // 1. Query the current user and make sure they are signed in
+    const { userId } = ctx.request;
+    if (!userId) throw new Error('You must be signed in to complete this order.');
+    const user = await ctx.db.query.user(
+      { where: { id: userId } },
+      `{
+      id
+      name
+      email
+      cart {
+       id
+       quantity
+       item { title price id description image largeImage }
+      }}`
+    );
+
+    // 2. Recalculate the total for the price
+    const amount = user.cart.reduce(
+      (tally, cartItem) => tally + cartItem.item.price * cartItem.quantity,
+      0
+    );
+    console.log(`Going to charge for a total of ${amount}`);
+
+    // 3. Create the stripe charge
+    const charge = await stripe.charges.create({
+      amount,
+      currency: 'USD',
+      source: args.token,
+    });
+
+    // 4. Convert the CartItems to OrderItems
+    const orderItems = user.cart.map(cartItem => {
+      const orderItem = {
+        ...cartItem.item,
+        quantity: cartItem.quantity,
+        user: { connect: { id: userId } },
+      };
+      delete orderItem.id;
+      return orderItem;
+    });
+
+    // 5. Create the Order
+    const order = await ctx.db.mutation.createOrder({
+      data: {
+        total: charge.amount,
+        charge: charge.id,
+        items: { create: orderItems },
+        user: { connect: { id: userId } },
+      },
+    });
+
+    // 6. Clean up - Clear the user's cart, delete cartItems
+    const cartItemIds = user.cart.map(cartItem => cartItem.id);
+    await ctx.db.mutation.deleteManyCartItems({
+      where: {
+        id_in: cartItemIds,
+      },
+    });
+
+    // 7. Return the Order to the client
+    return order;
   },
 };
 
