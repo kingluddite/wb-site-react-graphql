@@ -1,0 +1,9 @@
+#endpoint: ${env:PRISMA_ENDPOINT}
+endpoint: https://acme-production-b1ff3fc568.herokuapp.com/acme-service-production/prod
+datamodel: datamodel.prisma
+secret: ${env:PRISMA_SECRET}
+
+hooks:
+  post-deploy:
+      - graphql get-schema -p prisma
+
